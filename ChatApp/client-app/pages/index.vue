@@ -1,5 +1,9 @@
 <template>
   <v-row justify="center" align="center">
+    <ul>
+      <li>{{ list }}</li>
+    </ul>
+    <button @click="hoge">Click!!</button>
     <v-col cols="12" sm="8" md="6">
       <div class="text-center">
         <logo />
@@ -88,6 +92,16 @@ export default {
   components: {
     Logo,
     VuetifyLogo,
+  },
+  data() {
+    return {
+      list: '',
+    }
+  },
+  methods: {
+    async hoge() {
+      this.list = await this.$axios.$get('/api/question')
+    },
   },
 }
 </script>

@@ -1,6 +1,5 @@
 using System.Text;
 using System.Threading.Tasks;
-using ChatApp.Helper;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -34,6 +33,7 @@ namespace ChatApp
                 c.SwaggerDoc("v1", new OpenApiInfo {Title = "ChatApp", Version = "v1"});
             });
             services.AddSignalR();
+            services.AddRouting(options => options.LowercaseUrls = true);
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
@@ -72,18 +72,11 @@ namespace ChatApp
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ChatApp v1"));
             }
 
-            if (!env.IsEnvironment("Api"))
-            {
-                app.UseSpaStaticFiles();
-                app.UseSpa(spa =>
-                {
-                    spa.Options.SourcePath = "client-app";
-                    if (env.IsDevelopment())
-                    {
-                        spa.UseNuxtDevelopmentServer();
-                    }
-                });
-            }
+            app.UseCors(builder => builder
+                .WithOrigins("http://localhost:3000")
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials());
 
             app.UseHttpsRedirection();
 
