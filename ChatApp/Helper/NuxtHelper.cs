@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.SpaServices;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace WebApplication.Helper
+namespace ChatApp.Helper
 {
     public static class NuxtHelper
         {

@@ -1,6 +1,6 @@
 using System;
 
-namespace WebApplication
+namespace ChatApp
 {
     public class WeatherForecast
     {
