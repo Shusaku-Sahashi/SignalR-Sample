@@ -1,5 +1,6 @@
 using System.Text;
 using System.Threading.Tasks;
+using ChatApp.Hubs;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -84,7 +85,12 @@ namespace ChatApp
 
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+                endpoints.MapHub<QuestionHub>("/question-hub");
+                endpoints.MapHub<QuestionHub>("/question-hub-jwt");
+            });
         }
     }
 }

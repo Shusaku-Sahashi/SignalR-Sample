@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using ChatApp.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
 namespace ChatApp.Hubs
@@ -13,6 +14,7 @@ namespace ChatApp.Hubs
         Task QuestionScoreChange(Guid id, int score);
     }
 
+    [Authorize]
     public class QuestionHub : Hub<IQuestionHub>
     {
         // These 2 methods will be called from the client
