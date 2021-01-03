@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
@@ -22,38 +21,6 @@ namespace ChatApp.Controllers
     {
         private static readonly SigningCredentials SigningCreds = new (Startup.SecurityKey, SecurityAlgorithms.HmacSha256);
         private readonly JwtSecurityTokenHandler _tokenHandler = new ();
-
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginCredentials creds)
-        {
-            // 本来は、DataStoreでUserとPasswordを検証する必要がある
-            if (!ValidateLogin(creds))
-            {
-                return Json(new
-                {
-                    error = "Login failed"
-                });
-            }
-
-            var principal = GetPrincipal(creds, CookieAuthenticationDefaults.AuthenticationScheme);
-            
-            // 認証Cookieを作成している。
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-
-            return Json(new
-            {
-                name = principal.Identity.Name,
-                email = principal.FindFirstValue(ClaimTypes.Email),
-                role = principal.FindFirstValue(ClaimTypes.Role),
-            });
-        }
-
-        [HttpPost("logout")]
-        public async Task<IActionResult> Logout()
-        {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return StatusCode(200);
-        }
 
         [HttpGet("context")]
         public JsonResult Context()
@@ -77,7 +44,7 @@ namespace ChatApp.Controllers
                 });
             }
 
-            var principal = GetPrincipal(creds, Startup.JWTAuthScheme);
+            var principal = GetPrincipal(creds, JwtBearerDefaults.AuthenticationScheme);
 
             var token = new JwtSecurityToken(
                 "soSignalR",

@@ -1,7 +1,9 @@
+using System;
 using System.Text;
 using System.Threading.Tasks;
 using ChatApp.Hubs;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -15,8 +17,9 @@ namespace ChatApp
 {
     public class Startup
     {
-        public const string JWTAuthScheme = "JWTAuthScheme";
-        public static readonly SymmetricSecurityKey SecurityKey = new (Encoding.Default.GetBytes("this would be a real secret"));
+        public static readonly SymmetricSecurityKey SecurityKey =
+            new(Encoding.Default.GetBytes("this would be a real secret"));
+
         public IConfiguration Configuration { get; }
 
         public Startup(IConfiguration configuration)
@@ -29,36 +32,37 @@ namespace ChatApp
         {
             services.AddSpaStaticFiles(options => options.RootPath = "client-app/dist");
             services.AddControllers();
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo {Title = "ChatApp", Version = "v1"});
-            });
+            services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "ChatApp", Version = "v1"}); });
             services.AddSignalR();
             services.AddRouting(options => options.LowercaseUrls = true);
 
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+            services.AddAuthentication()
+                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
                 {
-                    // Set the cookie
-                    options.Cookie.Name = "soSignalR.AuthCookie";
-                    // Set the samesite cookie parameter as none, otherwise CORS scenarios where the client uses a different domain wont work!
-                    options.Cookie.SameSite = SameSiteMode.None;
-                    // Simply return 401 responses when authentication fails (as opposed to default redirecting behaviour)
-                    options.Events = new CookieAuthenticationEvents
+                    // Configure JWT Bearer Auth to expect our security key
+                    options.TokenValidationParameters = new TokenValidationParameters
                     {
-                        OnRedirectToLogin = redirectContext =>
+                        LifetimeValidator = (before, expires, token, param) => { return expires > DateTime.UtcNow; },
+                        ValidateAudience = false,
+                        ValidateIssuer = false,
+                        ValidateActor = false,
+                        ValidateLifetime = true,
+                        IssuerSigningKey = SecurityKey,
+                    };
+
+                    // The JwtBearer scheme knows how to extract the token from the Authorization header
+                    // but we will need to manually extract it from the query string in the case of requests to the hub
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = ctx =>
                         {
-                            redirectContext.HttpContext.Response.StatusCode = 401;
+                            if (ctx.Request.Query.ContainsKey("access_token"))
+                            {
+                                ctx.Token = ctx.Request.Query["access_token"];
+                            }
+
                             return Task.CompletedTask;
                         }
-                    };
-                    // In order to decide the between both schemas
-                    // inspect whether there is a JWT token either in the header or query string
-                    options.ForwardDefaultSelector = ctx =>
-                    {
-                        if (ctx.Request.Query.ContainsKey("access_token")) return JWTAuthScheme;
-                        if (ctx.Request.Headers.ContainsKey("Authorization")) return JWTAuthScheme;
-                        return CookieAuthenticationDefaults.AuthenticationScheme;
                     };
                 });
         }

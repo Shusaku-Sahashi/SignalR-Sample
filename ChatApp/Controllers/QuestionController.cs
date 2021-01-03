@@ -68,12 +68,12 @@ namespace ChatApp.Controllers
         }
 
         [HttpGet("{id}")]
-        public ActionResult GetQuestion([FromBody] Guid id)
+        public ActionResult GetQuestion(Guid id)
         {
             var question = questions.SingleOrDefault(q => q.Id == id);
             if (question == null) return NotFound();
 
-            return new JsonResult(questions);
+            return new JsonResult(question);
         }
 
         [HttpPost]
