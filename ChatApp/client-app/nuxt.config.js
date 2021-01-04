@@ -37,6 +37,8 @@ export default {
   modules: [
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
+    // markdown parser
+    '@nuxtjs/markdownit',
     // https://github.com/microcipcip/cookie-universal/tree/master/packages/cookie-universal-nuxt
     'cookie-universal-nuxt',
   ],
@@ -46,6 +48,10 @@ export default {
     browserBaseURL: 'https://localhost:5001',
     proxy: true,
     withCredentials: true,
+  },
+
+  markdownit: {
+    injected: true,
   },
 
   proxy: {},
