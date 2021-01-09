@@ -8,12 +8,7 @@
         <div class="action-buttons">
           <v-row justify="end">
             <v-col cols="auto">
-              <v-btn
-                class="primary text-capitalize"
-                :disabled="!isAuthenticated"
-                ><v-icon class="mr-1">mdi-help-circle</v-icon>Add
-                Question</v-btn
-              >
+              <add-question></add-question>
             </v-col>
           </v-row>
         </div>
@@ -29,7 +24,6 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 import QuestionPreview from '~/components/QuestionPreview'
 
 export default {
@@ -37,10 +31,8 @@ export default {
   data() {
     return {
       questions: [],
+      dialog: false,
     }
-  },
-  computed: {
-    ...mapGetters('context', ['isAuthenticated']),
   },
   async created() {
     const questions = await this.$axios.$get('/api/question')
