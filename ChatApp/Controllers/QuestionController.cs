@@ -21,7 +21,7 @@ namespace ChatApp.Controllers
         // Hub意外から送信する場合は、IHubContextを使用する。(今回はHubでの型を強制しているので、ジェネリクスは２つとる。）
         private readonly IHubContext<QuestionHub, IQuestionHub> _hubContext;
 
-        private ConcurrentBag<Question> questions = new ConcurrentBag<Question>()
+        private static ConcurrentBag<Question> questions = new ConcurrentBag<Question>()
         {
           new Question {
                 Id = Guid.Parse("b00c58c0-df00-49ac-ae85-0a135f75e01b"),
