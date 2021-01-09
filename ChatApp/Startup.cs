@@ -2,11 +2,10 @@ using System;
 using System.Text;
 using System.Threading.Tasks;
 using ChatApp.Hubs;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -36,8 +35,12 @@ namespace ChatApp
             services.AddSignalR();
             services.AddRouting(options => options.LowercaseUrls = true);
 
-            services.AddAuthentication()
-                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+            services.AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(options =>
                 {
                     // Configure JWT Bearer Auth to expect our security key
                     options.TokenValidationParameters = new TokenValidationParameters
@@ -56,15 +59,23 @@ namespace ChatApp
                     {
                         OnMessageReceived = ctx =>
                         {
-                            if (ctx.Request.Query.ContainsKey("access_token"))
+                            var accessToken = ctx.Request.Query["access_token"];
+
+                            // `OnMessageReceived`Eventをフックして、Query Stringからaccess tokenを読み込む必要がある。
+                            // (Web Socketもしくは、Server-Sent Eventsでは、access tokenをQuery Stringとしてサーバーに送信する)
+                            // Browser APIでは、Query Stringでaccess tokenを送信することは制限されるので、SignalRを使用する場合だけに制限する仕組みを入れる。
+                            var path = ctx.HttpContext.Request.Path;
+                            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
                             {
-                                ctx.Token = ctx.Request.Query["access_token"];
+                                ctx.Token = accessToken;
                             }
 
                             return Task.CompletedTask;
                         }
                     };
                 });
+                
+                services.AddSingleton<IUserIdProvider, NameUserIdProvider>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -87,6 +98,9 @@ namespace ChatApp
 
             app.UseRouting();
 
+            // Authentication -> Authorizationの順番で設定しないと、401エラーになる。
+            // 今考えると、Pipelineを順番通りに作成すつことを考えるとこの順番でないといけないことがわかる。
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
