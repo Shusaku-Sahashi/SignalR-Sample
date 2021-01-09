@@ -118,7 +118,7 @@ namespace ChatApp.Controllers
             return new JsonResult(answer);
         }
 
-        [HttpPost("{id}/upvote")]
+        [HttpPatch("{id}/upvote")]
         [Authorize]
         public async Task<ActionResult> UpvoteQuestionAsync(Guid id)
         {
@@ -131,7 +131,7 @@ namespace ChatApp.Controllers
             return new JsonResult(question);
         }
 
-        [HttpPost("{id}/downvote")]
+        [HttpPatch("{id}/downvote")]
         [Authorize]
         public async Task<ActionResult> DownvoteQuestionAsync(Guid id)
         {
