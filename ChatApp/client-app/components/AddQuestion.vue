@@ -23,7 +23,7 @@
             </v-col>
             <v-col cols="11">
               <v-textarea
-                v-model="question.content"
+                v-model="question.body"
                 placeholder="Text"
                 outlined
                 dense
@@ -65,13 +65,13 @@ export default {
       loading: false,
       question: {
         title: '',
-        content: '',
+        body: '',
       },
     }
   },
   computed: {
     canSend() {
-      return this.question.title && this.question.content
+      return this.question.title && this.question.body
     },
     ...mapGetters('context', ['isAuthenticated']),
   },
@@ -84,7 +84,7 @@ export default {
     },
     cancel() {
       this.question.title = ''
-      this.question.content = ''
+      this.question.body = ''
       this.dialog = false
     },
   },
