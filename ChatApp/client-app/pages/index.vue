@@ -8,7 +8,7 @@
         <div class="action-buttons">
           <v-row justify="end">
             <v-col cols="auto">
-              <add-question></add-question>
+              <add-question @question-added="onQuestionAdded"></add-question>
             </v-col>
           </v-row>
         </div>
@@ -24,19 +24,26 @@
 </template>
 
 <script>
-import QuestionPreview from '~/components/QuestionPreview'
+import QuestionPreview from '@/components/QuestionPreview'
+import AddQuestion from '@/components/AddQuestion'
 
 export default {
-  components: { QuestionPreview },
+  components: { QuestionPreview, AddQuestion },
+  // asyncDataはcontextを引数に入れて呼び出す。その引数の中には、$axiosがあるので、これを使用可能。
+  async asyncData({ $axios }) {
+    const questions = await $axios.$get('/api/question')
+    if (questions !== false) return { questions }
+  },
   data() {
     return {
-      questions: [],
       dialog: false,
     }
   },
-  async created() {
-    const questions = await this.$axios.$get('/api/question')
-    if (questions !== false) this.questions = questions
+  methods: {
+    onQuestionAdded(question) {
+      if (this.questions.some((q) => q.id === question.id)) return
+      this.questions = [question, ...this.questions]
+    },
   },
 }
 </script>

@@ -78,9 +78,11 @@ export default {
   methods: {
     async send() {
       this.loading = true
-      await this.$axios.$post('/api/question', this.question)
-      this.$emit('answer-added')
-      this.dialog = false
+      const res = await this.$axios.$post('/api/question', this.question)
+      this.$emit('question-added', res)
+
+      this.cancel()
+      this.loading = false
     },
     cancel() {
       this.question.title = ''
