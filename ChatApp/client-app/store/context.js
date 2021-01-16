@@ -39,6 +39,7 @@ export const actions = {
     const token = res.token
     delete profile.token
 
+    this.$axios.setHeader('Authorization', 'Bearer ' + token)
     commit('setProfile', profile)
     commit('setJwt', token)
   },
