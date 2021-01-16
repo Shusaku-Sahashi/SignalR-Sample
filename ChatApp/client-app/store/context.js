@@ -7,7 +7,6 @@ export const state = {
 
 export const getters = {
   isAuthenticated(state) {
-    console.log(state.profile.name && state.profile.email)
     return state.profile.name && state.profile.email
   },
 }
@@ -18,13 +17,11 @@ export const mutations = {
   },
   setJwt(state, jwtToken) {
     state.jwtToken = jwtToken
-    console.log(jwtToken)
     this.$cookies.set(CookieJwtKey, jwtToken, {
       path: '/',
       maxAge: 60 * 60 * 24 * 7,
       sameSite: 'strict',
     })
-    console.log(this.$cookies.getAll())
   },
   restoreJwt(state) {
     const jwt = this.$cookies.get(CookieJwtKey)

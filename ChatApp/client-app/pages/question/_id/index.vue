@@ -14,7 +14,6 @@ export default {
   name: 'QuestionViewer',
   async asyncData({ params, $axios }) {
     const question = await $axios.$get(`/api/question/${params.id}`)
-    console.log(question)
     return { question }
   },
 }
