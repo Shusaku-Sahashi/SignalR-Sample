@@ -29,7 +29,6 @@ namespace ChatApp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSpaStaticFiles(options => options.RootPath = "client-app/dist");
             services.AddControllers();
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "ChatApp", Version = "v1"}); });
             services.AddSignalR();
@@ -65,7 +64,7 @@ namespace ChatApp
                             // (Web Socketもしくは、Server-Sent Eventsでは、access tokenをQuery Stringとしてサーバーに送信する)
                             // Browser APIでは、Query Stringでaccess tokenを送信することは制限されるので、SignalRを使用する場合だけに制限する仕組みを入れる。
                             var path = ctx.HttpContext.Request.Path;
-                            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
+                            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/question-hub"))
                             {
                                 ctx.Token = accessToken;
                             }
