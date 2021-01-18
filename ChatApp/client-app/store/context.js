@@ -40,6 +40,7 @@ export const actions = {
     delete profile.token
 
     this.$axios.setHeader('Authorization', 'Bearer ' + token)
+    await this.$questionHub.start(token)
     commit('setProfile', profile)
     commit('setJwt', token)
   },

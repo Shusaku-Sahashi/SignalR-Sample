@@ -39,6 +39,9 @@ export default {
       dialog: false,
     }
   },
+  created() {
+    this.$questionHub.on('question-added', this.onQuestionAdded)
+  },
   methods: {
     onQuestionAdded(question) {
       if (this.questions.some((q) => q.id === question.id)) return
