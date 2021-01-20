@@ -80,6 +80,10 @@ async function startSignalr(url, jwtToken) {
     emitter.emit('question-added', question)
   })
 
+  connection.on('QuestionScoreChange', (questionId, score) => {
+    emitter.emit('score-changed', { questionId, score })
+  })
+
   connection.onclose(async () => {
     if (!started) return
     if (!manuallyClosed) await start()
