@@ -1,10 +1,8 @@
 <template>
   <v-dialog v-model="dialog" width="20%">
     <template v-slot:activator="{ on, attrs }">
-      <v-btn v-show="!isAuthenticated" color="grey" v-bind="attrs" v-on="on"
-        >Login</v-btn
-      >
-      <v-btn v-show="isAuthenticated" color="grey">Logout</v-btn>
+      <v-btn v-if="!login" color="grey" v-bind="attrs" v-on="on">Login</v-btn>
+      <v-btn v-else color="grey">Logout</v-btn>
     </template>
     <template>
       <v-card>
@@ -58,8 +56,6 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-
 export default {
   name: 'Login.vue',
   data() {
@@ -70,13 +66,16 @@ export default {
         email: null,
         password: null,
       },
+      login: false,
     }
   },
   computed: {
     isError() {
       return !!this.errorMessage
     },
-    ...mapGetters('context', ['isAuthenticated']),
+  },
+  mounted() {
+    this.login = !!this.$store.getters['context/isAuthenticated']
   },
   methods: {
     async send() {
@@ -96,6 +95,7 @@ export default {
       this.credential.email = null
       this.credential.password = null
       this.dialog = false
+      this.login = true
     },
     close() {
       this.dialog = false
@@ -103,5 +103,3 @@ export default {
   },
 }
 </script>
-
-<style scoped></style>
