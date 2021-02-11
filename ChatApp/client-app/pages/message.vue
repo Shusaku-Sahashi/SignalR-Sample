@@ -1,26 +1,62 @@
 <template>
   <div class="message-container">
-    <div class="message-title">Title</div>
+    <v-toolbar>
+      <v-toolbar-title>{{ roomName }}</v-toolbar-title>
+    </v-toolbar>
     <v-row
-      class="message-wrapper ma-2"
+      class="message-wrapper"
       ref="multipane"
       align="end"
       no-gutters
       @mousedown="onMouseDown"
     >
-      <v-col cols="12" class="mt-1 message-display">foo</v-col>
-      <div class="multipane-resizer" />
-      <v-col cols="12" class="mt-0 message-sender">hoge</v-col>
+      <v-col cols="12" class="mt-1 message-display-container"
+        ><v-row align="end" class="message-display-wrapper">
+          <v-col cols="12" class="message-previewer py-0">
+            <message-previewer></message-previewer> </v-col></v-row
+      ></v-col>
+      <div class="multipane-resizer">
+        <div class="multipane-resizer-line"></div>
+      </div>
+      <v-col cols="12" class="mt-2 message-sender-wrapper">
+        <v-row
+          ><v-col cols="11"
+            ><v-textarea
+              filled
+              no-resize
+              outlined
+              :rows="messageSender.rows"
+              height="3"
+              class="ml-10"
+            />
+          </v-col>
+          <v-col cols="1">
+            <v-btn class="primary">送信</v-btn>
+          </v-col>
+        </v-row>
+      </v-col>
     </v-row>
   </div>
 </template>
 <script>
 export default {
   layout: 'message',
+  data() {
+    return {
+      roomName: 'Room Name',
+      messageSender: {
+        rows: 10,
+      },
+    }
+  },
   methods: {
     // ここを参考に作成 : https://github.com/yansern/vue-multipane
     onMouseDown({ target: resizer, pageX: initialPageX, pageY: initialPageY }) {
       if (resizer.className && resizer.className.match('multipane-resizer')) {
+        // lineの方でEventが起きた場合は親要素を詰め直す。
+        if (resizer.className.match('multipane-resizer-line')) {
+          resizer = resizer.parentNode
+        }
         // functionなどでthisの意味が変わってくるので、selfとして入れて定義しておく。
         const self = this
         // $elでコンポネートのルートを参照することが可能。(HTMLツリーの最上位に位置するルートは `html` タグです。
@@ -42,8 +78,8 @@ export default {
           return ((initialSize + offset) / container.clientHeight) * 100
         }
 
-        const MIN_NEXT_PANE_SIZE = 8
-        const MAX_NEXT_PANE_SIZE = 18
+        const MIN_NEXT_PANE_SIZE = 10
+        const MAX_NEXT_PANE_SIZE = 20
         const onMouseMove = ({ pageY }) => {
           const nextPaneSize = getResizeHeight(
             initialNextPaneHeight,
@@ -58,6 +94,7 @@ export default {
               getResizeHeight(initialPreviousPaneHeight, pageY - initialPageY) +
               '%'
             nextPane.style.height = nextPaneSize + '%'
+            this.messageSender.rows = (nextPaneSize - MIN_NEXT_PANE_SIZE) / 3
           }
         }
 
@@ -66,7 +103,9 @@ export default {
             // clientHeight: 表示域の縦幅を取得する。
             // https://syncer.jp/javascript-reference/element/clientwidth
             getResizeHeight(previousPane.clientHeight) + '%'
-          nextPane.style.height = getResizeHeight(nextPane.clientHeight) + '%'
+          const nextPaneSize = getResizeHeight(nextPane.clientHeight)
+          nextPane.style.height = nextPaneSize + '%'
+          this.messageSender.rows = (nextPaneSize - MIN_NEXT_PANE_SIZE) / 3
 
           removeEventListener('mousemove', onMouseMove)
           removeEventListener('mouseup', onMouseUp)
@@ -85,22 +124,26 @@ export default {
   height: 100%;
 }
 .message-wrapper {
+  height: 85%;
+}
+.message-display-container {
   height: 90%;
 }
-.message-title {
-  height: 8%;
-  background-color: orangered;
+.message-display-wrapper {
+  height: 100%;
 }
-.message-display {
-  height: 90%;
-}
-.message-sender {
+.message-sender-wrapper {
   height: 8%;
-  background-color: green;
 }
 .multipane-resizer {
   width: 100%;
-  height: 3px;
+  height: 15px;
   cursor: row-resize;
+}
+.multipane-resizer-line {
+  width: 100%;
+  height: 5px;
+  transform: translateY(5px);
+  background-color: #222222;
 }
 </style>

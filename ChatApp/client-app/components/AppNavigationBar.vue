@@ -1,5 +1,5 @@
 <template>
-  <v-app-bar app clipped-left v-cloak>
+  <v-app-bar app clipped-left>
     <v-app-bar-title class="wrap-text">miniOS</v-app-bar-title>
     <v-toolbar-items class="ma-md-4">
       <v-btn
@@ -48,8 +48,4 @@ export default {
 }
 </script>
 
-<style scoped>
-[v-cloak] {
-  display: none;
-}
-</style>
+<style scoped></style>
